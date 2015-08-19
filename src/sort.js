@@ -1,28 +1,33 @@
 /// <reference path="../typings/tsd.d.ts" />
 var MySort;
 (function (MySort) {
-    // "Contextual Type" works when non-generic type is used on the left side.
-    var insertSortForNumber = function (arr, comp) {
-        console.log(arr.length);
-        console.log(comp(arr[0], arr[1]));
+    var mySwap = function (arr, i, j) {
+        var tmp_i = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp_i;
         return arr;
     };
-    // "Contextual Type" doesn't work for the generic type on the left side.
-    // Here, the types of `arr` and `comp` are considered as `any`, which would raise an error when "noImplicitAny" options is on.
-    var insertSortInferredAny = function (arr, comp) {
-        console.log(arr.length);
-        console.log(comp(arr[0], arr[1]));
+    MySort.myShift = function (arr, from, to) {
+        // assume  0 <= from, to < arr.length
+        var d = from <= to ? 1 : -1;
+        var i = from;
+        while (i !== to) {
+            mySwap(arr, i, i + d);
+            i += d;
+        }
         return arr;
     };
-    // That's why we need to put the type for the arguments explicitly like this.
-    var insertSortExplicitTyped = function (arr, comp) {
-        console.log(arr.length);
-        console.log(comp(arr[0], arr[1]));
-        return arr;
-    };
-    // Here is the real code for sorting
-    MySort.insertSort = function (arr, comp) {
-        console.log("editing sort.ts");
+    MySort.insertSort = function (arr, lt) {
+        for (var i = 0; i < arr.length; i++) {
+            var j = 0;
+            while (0 <= j && j < i) {
+                if (lt(arr[i], arr[j])) {
+                    MySort.myShift(arr, i, j);
+                    break;
+                }
+                j++;
+            }
+        }
         return arr;
     };
 })(MySort = exports.MySort || (exports.MySort = {}));

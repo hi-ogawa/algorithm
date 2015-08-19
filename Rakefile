@@ -1,22 +1,34 @@
 task :default => [:ts, :test]
 
-tss   = FileList.new("src/**/*.ts")
-jss   = tss.ext(".js")
-specs = FileList.new("spec/**/*.spec.coffee")
+# source files
+tss          = FileList.new("src/**/*.ts")
+specs        = tss.sub("src/", "spec/").ext(".spec.coffee")
 
-task :ts   => jss
-task :test => "spec/support/result.txt"
+# task definition
+task :ts   => tss.ext(".js")
+task :test => specs.ext(".txt")
 
 
+## build rules ##
+
+# compile typescript
 rule '.js' => '.ts' do |t|
-  puts "\n\n--- compiling typescript --\n"
+  puts "\n--- compiling typescripts --\n"
   sh "tsc #{t.source} -noImplicitAny --module commonjs"
 end
 
+# test and source dependency
+rule '.spec.coffee' => proc{|spec| spec.sub("spec/", "src/").sub(".spec.coffee", ".js")} do |t|
+  sh "touch #{t.name}"
+end
 
-file "spec/support/result.txt" => [jss, specs] do
-  puts "\n\n--- browserifying --\n"
-  sh "browserify -t coffeeify #{specs} -o spec/support/bundle.js"
+# test execution via browsefy and jasmine
+rule '.spec.txt' => proc{|res| res.sub(".spec.txt", ".spec.coffee")} do |t|
+  puts "\n--- browserifying --\n"
+
+  sh "browserify -t coffeeify #{t.source} -o #{t.source.sub(".coffee", ".js")}"
+
   puts "\n\n--- runnning jasmin --\n"
-  sh "jasmine spec/support/bundle.js > spec/support/result.txt; cat spec/support/result.txt"
+
+  sh "jasmine #{t.source.sub(".coffee", ".js")} > #{t.name}; cat #{t.name}"
 end

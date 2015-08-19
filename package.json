@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "config": {
-    "src": "src/*.ts spec/*.spec.coffee"
+    "src": "src/*.ts src/*.js spec/*.spec.coffee"
   },
   "scripts": {
     "watch": "ls $npm_package_config_src | entr rake"

@@ -17,13 +17,8 @@ rule '.js' => '.ts' do |t|
   sh "tsc #{t.source} -noImplicitAny --module commonjs"
 end
 
-# test and source dependency
-rule '.spec.coffee' => proc{|spec| spec.sub("spec/", "src/").sub(".spec.coffee", ".js")} do |t|
-  sh "touch #{t.name}"
-end
-
 # test execution via browsefy and jasmine
-rule '.spec.txt' => proc{|res| res.sub(".spec.txt", ".spec.coffee")} do |t|
+rule '.spec.txt' => proc{|res| [res.sub(".spec.txt", ".spec.coffee"), res.sub("spec/", "src/").sub(".spec.txt", ".js")]} do |t|
   puts "\n--- browserifying --\n"
 
   sh "browserify -t coffeeify #{t.source} -o #{t.source.sub(".coffee", ".js")}"

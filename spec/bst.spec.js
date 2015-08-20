@@ -1549,113 +1549,131 @@
 }.call(this));
 
 },{}],2:[function(require,module,exports){
-var MySort, _, chance;
+var BST, chance, rep;
+
+BST = require('../src/bst').BST;
+
+rep = require('../src/bst').rep;
 
 chance = new require('chance')();
 
-_ = require('underscore');
-
-MySort = require('../src/sort.js').MySort;
-
-describe("MySort", function() {
-  xit("MyShift", function() {
-    expect(MySort.myShift([0, 1, 2, 3, 4, 5], 1, 4)).toEqual([0, 2, 3, 4, 1, 5]);
-    return _(_.range(100)).each(function() {
-      var ans, arr, from, fromEl, to;
-      arr = chance.rpg('100d100');
-      from = chance.natural({
-        min: 0,
-        max: arr.length - 1
-      });
-      to = chance.natural({
-        min: 0,
-        max: arr.length - 1
-      });
-      ans = arr.slice(0);
-      fromEl = ans[from];
-      ans.splice(from, 1);
-      ans.splice(to, 0, fromEl);
-      return expect(MySort.myShift(arr, from, to)).toEqual(ans);
+describe("BST", function() {
+  var bst;
+  bst = null;
+  beforeEach(function() {
+    return bst = new BST([2, 7, 0, 5, 3], function(a, b) {
+      return a < b;
     });
   });
-  xit("insertSort", function() {
-    return _(_.range(200)).each(function() {
-      var ans, arr, comp;
-      arr = chance.rpg('100d100');
-      comp = function(a, b) {
-        return a < b;
-      };
-      ans = arr.slice(0).sort(function(a, b) {
-        return a - b;
-      });
-      return expect(MySort.insertSort(arr, comp)).toEqual(ans);
-    });
+  xit("prints visualize", function() {
+    return console.log(new BST(chance.rpg('10d9'), function(a, b) {
+      return a < b;
+    }).visualize());
   });
-  return xit("selectSort", function() {
-    return _(_.range(200)).each(function() {
-      var ans, arr, comp;
-      arr = chance.rpg('100d100');
-      comp = function(a, b) {
-        return a < b;
-      };
-      ans = arr.slice(0).sort(function(a, b) {
-        return a - b;
-      });
-      return expect(MySort.selectSort(arr, comp)).toEqual(ans);
-    });
+  it("rep", function() {
+    return expect(rep(5, "ab")).toBe("ababababab");
+  });
+  it("search", function() {
+    expect(bst.search(5)).toBe(true);
+    return expect(bst.search(4)).toBe(false);
+  });
+  return it("visualize", function() {
+    var _visual, visual;
+    visual = "2 - 7 - @\n|   |\n|   + - 5 - @\n|       |\n|       + - 3 - @\n|           |\n|           + - @\n|\n+ - 0 - @\n    |\n    + - @";
+    _visual = "2 - 7 - @\n\n    + - 5 - @\n\n        + - 3 - @\n\n            + - @\n\n+ - 0 - @\n\n    + - @\n\n";
+    return expect(bst.visualize()).toBe(_visual);
   });
 });
 
 
-},{"../src/sort.js":3,"underscore":1}],3:[function(require,module,exports){
+},{"../src/bst":3}],3:[function(require,module,exports){
 /// <reference path="../typings/tsd.d.ts" />
-var MySort;
-(function (MySort) {
-    var mySwap = function (arr, i, j) {
-        var tmp_i = arr[i];
-        arr[i] = arr[j];
-        arr[j] = tmp_i;
-        return arr;
-    };
-    MySort.myShift = function (arr, from, to) {
-        // assume  0 <= from, to < arr.length
-        var d = from <= to ? 1 : -1;
-        var i = from;
-        while (i !== to) {
-            mySwap(arr, i, i + d);
-            i += d;
-        }
-        return arr;
-    };
-    MySort.insertSort = function (arr, lt) {
-        for (var i = 0; i < arr.length; i++) {
-            var j = 0;
-            while (0 <= j && j < i) {
-                if (lt(arr[i], arr[j])) {
-                    MySort.myShift(arr, i, j);
-                    break;
-                }
-                j++;
+var _ = require('underscore');
+var BinTree = (function () {
+    function BinTree(val, parent, left, right) {
+        if (parent === void 0) { parent = null; }
+        if (left === void 0) { left = null; }
+        if (right === void 0) { right = null; }
+        this.val = val;
+        this.parent = parent;
+        this.left = left;
+        this.right = right;
+    }
+    return BinTree;
+})();
+// helper functions
+exports.rep = function (n, s) {
+    return _.reduce((_.range(n).map(function () { return s; })), (function (soFar, sToAdd) { return soFar + sToAdd; }), "");
+};
+var BST = (function () {
+    function BST(arr, comp) {
+        var _this = this;
+        this.comp = comp;
+        this.traverse = function (f) {
+            return [];
+        };
+        // private method implementations
+        this._insert = function (tree, el) {
+            if (tree === null) {
+                return new BinTree(el);
             }
-        }
-        return arr;
-    };
-    MySort.selectSort = function (arr, lt) {
-        for (var i = 0; i < arr.length; i++) {
-            var j = i;
-            var min = arr[i], minIndex = i;
-            while (j <= arr.length) {
-                // find 'min' and 'minIndex' between 'i <= j <= arr.length'
-                if (lt(arr[j], min)) {
-                    min = arr[j];
-                    minIndex = j;
-                }
-                j++;
+            else if (_this.comp(el, tree.val)) {
+                tree.left = _this._insert(tree.left, el);
+                return tree;
             }
-            MySort.myShift(arr, minIndex, i);
-        }
-        return arr;
+            else {
+                tree.right = _this._insert(tree.right, el);
+                return tree;
+            }
+        };
+        this._search = function (tree, el) {
+            if (tree === null) {
+                return false;
+            }
+            else if (tree.val === el) {
+                return true;
+            }
+            else if (_this.comp(el, tree.val)) {
+                return _this._search(tree.left, el);
+            }
+            else {
+                return _this._search(tree.right, el);
+            }
+        };
+        this._delete = function (tree, el) {
+            return null;
+        };
+        this._visualize = function (tree, h) {
+            if (tree === null) {
+                return { out: "@\n\n", w: 0 };
+            }
+            else {
+                var _r = _this._visualize(tree.right, h + 1);
+                var _l = _this._visualize(tree.left, h + 1);
+                var out = tree.val.toString() + " - " + _r.out +
+                    exports.rep(h * 4, " ") + "+ - " + _l.out;
+                return { out: out, w: _r.w + 1 };
+            }
+        };
+        this.bt = null;
+        arr.forEach(function (el) { return _this.insert(el); });
+    }
+    // public interface methods
+    BST.prototype.insert = function (el) { this.bt = this._insert(this.bt, el); };
+    BST.prototype.search = function (el) { return this._search(this.bt, el); };
+    BST.prototype.delete = function (el) {
     };
-})(MySort = exports.MySort || (exports.MySort = {}));
+    BST.prototype.findMin = function () {
+        return null;
+    };
+    BST.prototype.findMax = function () {
+        return null;
+    };
+    BST.prototype.visualize = function () {
+        return this._visualize(this.bt, 0).out;
+    };
+    return BST;
+})();
+exports.BST = BST;
 
-},{}]},{},[2]);
+},{"underscore":1}]},{},[2]);

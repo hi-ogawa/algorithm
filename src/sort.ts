@@ -45,4 +45,26 @@ export module MySort {
         }
         return arr;
     };
+
+    export var selectSort: SortFuncG = <T>(arr: Array<T>, lt: CompFunc<T>) : Array<T> => {
+        
+        for(let i = 0; i < arr.length; i++){
+
+            let j = i;
+
+            let min      = arr[i],
+                minIndex = i;
+
+            while(j <= arr.length){
+                // find 'min' and 'minIndex' between 'i <= j <= arr.length'
+                if( lt(arr[j], min) ){
+                    min      = arr[j];
+                    minIndex = j;
+                }
+                j++;
+            }
+            myShift(arr, minIndex, i);
+        }
+        return arr;
+    };
 }

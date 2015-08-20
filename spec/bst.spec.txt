@@ -1,0 +1,10 @@
+Started
+*...
+
+Pending:
+
+1) BST prints visualize
+  No reason given
+
+4 specs, 0 failures, 1 pending spec
+Finished in 0.009 seconds

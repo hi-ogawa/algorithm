@@ -30,4 +30,20 @@ var MySort;
         }
         return arr;
     };
+    MySort.selectSort = function (arr, lt) {
+        for (var i = 0; i < arr.length; i++) {
+            var j = i;
+            var min = arr[i], minIndex = i;
+            while (j <= arr.length) {
+                // find 'min' and 'minIndex' between 'i <= j <= arr.length'
+                if (lt(arr[j], min)) {
+                    min = arr[j];
+                    minIndex = j;
+                }
+                j++;
+            }
+            MySort.myShift(arr, minIndex, i);
+        }
+        return arr;
+    };
 })(MySort = exports.MySort || (exports.MySort = {}));

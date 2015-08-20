@@ -1,6 +1,15 @@
 Started
-..
+**.
 
 
-2 specs, 0 failures
-Finished in 0.09 seconds
+3 specs, 0 failures
+Finished in 267.601 seconds
+) MySort insertSort
+  No reason given
+
+
+3) MySort selectSort
+  No reason given
+
+3 specs, 0 failures, 3 pending specs
+Finished in 0.004 seconds
